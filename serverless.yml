@@ -1,0 +1,53 @@
+service: serverless-typescript-example # Or serverless-practice
+frameworkVersion: '3' # <-- Make sure this is '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x # Or nodejs20.x - match your target
+  region: us-east-1 # Or your preferred region
+  memorySize: 256
+  timeout: 30
+  environment:
+    NODE_ENV: ${opt:stage, 'dev'}
+  # iam role is fine
+
+plugins:
+  - serverless-plugin-typescript # <-- Use the new plugin
+  - serverless-offline
+
+package:
+  individually: true
+  # excludeDevDependencies: true # esbuild handles this by default with bundling
+  patterns: # Simplified patterns
+    - '!test/**'
+    - '!.git/**'
+    - '!.github/**'
+    # - '!dist/**' # Let esbuild handle output
+    # - '!node_modules/**' # Bundler handles dependencies
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false # easier debugging for now
+    sourcemap: true
+    exclude:
+      - aws-sdk # Already available in Lambda
+    target: node18 # <-- Match your provider runtime
+    define: { 'require.resolve': undefined }
+    platform: 'node'
+    concurrency: 10
+
+functions:
+  # Rename function to reflect its purpose
+  hello: # <-- Logical name changed from 'authorizer'
+    handler: src/hello.handler # Path to file.exportedFunctionName
+    # You might want different events later, e.g.:
+    events:
+      - httpApi: # Using HTTP API Gateway (cheaper, faster)
+          path: /hello
+          method: get
+    # OR (if you prefer REST API Gateway)
+    # events:
+    #  - http:
+    #      path: hello # Path relative to base
+    #      method: get
