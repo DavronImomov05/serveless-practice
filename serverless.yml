@@ -1,8 +1,9 @@
-service: serverless-typescript-example # Or serverless-practice
+service: serverless-typescript-example 
 frameworkVersion: '3' 
+
 provider:
   name: aws
-  runtime: 
+  runtime: nodejs18.x 
   region: us-east-1 
   memorySize: 256
   timeout: 30
@@ -10,24 +11,27 @@ provider:
     NODE_ENV: ${opt:stage, 'dev'}
 
 
+
 plugins:
-  - serverless-plugin-typescript
+  - serverless-plugin-typescript 
   - serverless-offline
 
 package:
   individually: true
+ 
   patterns: 
     - '!test/**'
     - '!.git/**'
     - '!.github/**'
-
+   
 custom:
   esbuild:
     bundle: true
     minify: false 
+    minify: false 
     sourcemap: true
     exclude:
-      - aws-sdk # Already available in Lambda
+      - aws-sdk 
     target: node18 
     define: { 'require.resolve': undefined }
     platform: 'node'
@@ -36,7 +40,13 @@ custom:
 functions:
   hello: 
     handler: src/hello.handler 
+  hello: 
+    handler: src/hello.handler 
     events:
+      - httpApi: 
       - httpApi: 
           path: /hello
           method: get
+      - httpApi:
+          path: /hello
+          method: post
